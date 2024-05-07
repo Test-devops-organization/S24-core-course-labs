@@ -1,12 +1,16 @@
 from flask import Flask
 from api.routes.home import home
+from prometheus_flask_exporter import PrometheusMetrics
+
+from api.routes.visits import visits
 
 
-def create_app():
-    app = Flask(__name__)
-    app.register_blueprint(home)
-    return app
+app = Flask(__name__)
+app.register_blueprint(home)
+app.register_blueprint(visits)
 
+metrics = PrometheusMetrics(app)
+metrics.info('app_info', 'Application info', version='2.0.0')
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -17,6 +21,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     port = args.port
-
-    app = create_app()
-    app.run(host="0.0.0.0", port=port, debug=True)
+    
+    app.run(host="0.0.0.0", port=port, debug=False)
